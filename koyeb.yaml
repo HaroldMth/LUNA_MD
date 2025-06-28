@@ -1,6 +1,6 @@
-name: jawad-md
+name: luna-md
 services:
-  - name: jawad-md-service
+  - name: luna-md-service
     type: web
     ports:
       - 5000

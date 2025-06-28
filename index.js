@@ -56,17 +56,17 @@ async function downloadSessionData() {
         return false;
     }
 
-    const sessdata = config.SESSION_ID.split("KHAN-MD~")[1];
+    const sessdata = config.SESSION_ID.split("HANS-BYTE~")[1];
 
     if (!sessdata || !sessdata.includes("#")) {
-        console.error('❌ Invalid SESSION_ID format! It must contain both file ID and decryption key.');
+        console.error('❌ INVALID SESSION ID, MAKE SURE YOU PAIRED FROM BOT SITE.');
         return false;
     }
 
     const [fileID, decryptKey] = sessdata.split("#");
 
     try {
-        console.log("🔄 Downloading Session...");
+        console.log("😇 LUNA MD DOWNLOADING YOUR SESSION... 😇");
         const file = File.fromURL(`https://mega.nz/file/${fileID}#${decryptKey}`);
 
         const data = await new Promise((resolve, reject) => {
@@ -77,11 +77,26 @@ async function downloadSessionData() {
         });
 
         await fs.promises.writeFile(credsPath, data);
-        console.log("🔒 Session Successfully Loaded !!");
+        console.log("😇 SESSION SUCCESFULLY DOWNLOADED 😇");
         return true;
     } catch (error) {
         console.error('❌ Failed to download session data:', error);
         return false;
+    }
+}
+    import { readdirSync } from 'fs';
+import { join } from 'path';
+import { pathToFileURL } from 'url';
+
+const pluginFolder = path.join(__dirname, 'plugins');
+const pluginFiles = readdirSync(pluginFolder).filter(file => file.endsWith('.js'));
+
+for (const file of pluginFiles) {
+    try {
+        await import(pathToFileURL(join(pluginFolder, file)).href);
+        console.log(chalk.cyan(`✅ Plugin loaded: ${file}`));
+    } catch (e) {
+        console.error(`❌ Failed to load plugin ${file}`, e);
     }
 }
 
@@ -89,22 +104,23 @@ async function start() {
     try {
         const { state, saveCreds } = await useMultiFileAuthState(sessionDir);
         const { version, isLatest } = await fetchLatestBaileysVersion();
-        console.log(`🤖 JAWAD-MD using WA v${version.join('.')}, isLatest: ${isLatest}`);
+        console.log(`🤖 LUNA MD RUNNING ON WhatsApp  v${version.join('.')}, isLatest: ${isLatest}`);
         
         const Matrix = makeWASocket({
             version,
             logger: pino({ level: 'silent' }),
             printQRInTerminal: useQR,
-            browser: ["JAWAD-MD", "safari", "3.3"],
+            browser: ["HANS_TECH", "safari", "3.3"],
             auth: state,
             getMessage: async (key) => {
                 if (store) {
                     const msg = await store.loadMessage(key.remoteJid, key.id);
                     return msg.message || undefined;
                 }
-                return { conversation: "JAWAD-MD whatsapp user bot" };
+                return { conversation: "😇 LUNA MD BY HANS TECH 😇" };
             }
         });
+
 
 Matrix.ev.on('connection.update', (update) => {
     const { connection, lastDisconnect } = update;
@@ -114,24 +130,27 @@ Matrix.ev.on('connection.update', (update) => {
         }
     } else if (connection === 'open') {
         if (initialConnection) {
-            console.log(chalk.green("Connected Successfully KHAN-MD 🤍"));
+            console.log(chalk.green("😇 LUNA MD CONNECTED SUCCESFULLY TO WHATSAPP 😇"));
             Matrix.sendMessage(Matrix.user.id, { 
                 image: { url: "https://files.catbox.moe/pf270b.jpg" }, 
-                caption: `*Hello there JAWAD-MD User! 👋🏻* 
+                caption: `
+╔══════════════════════════╗
+║    😇 𝐋𝐔𝐍𝐀 𝐌𝐃 𝐁𝐎𝐓 😇          
+║  >>> CONNECTION ESTABLISHED ✅ 😇      
+╠══════════════════════════╣
+║   • PREFIX: [ *${config.PREFIX}* ]          
+╟──────────────────────────╢
+║ ♻ 𝐖𝐇𝐀𝐓𝐒𝐀𝐏𝐏 𝐂𝐇𝐀𝐍𝐍𝐄𝐋 𝐋𝐈𝐍𝐊      
+║  https://whatsapp.com/channel/0029VaZDIdxDTkKB4JSWUk1O      
+╟──────────────────────────╢
+║ ♻ 𝐖𝐇𝐀𝐓𝐒𝐀𝐏𝐏 𝐆𝐑𝐎𝐔𝐏 𝐋𝐈𝐍𝐊       
+║  https://chat.whatsapp.com/K0GPSSfr16j8VsIAU8uHYM            
+╠══════════════════════════╣
+║   𝐋𝐔𝐍𝐀 𝐌𝐃 - 𝐁𝐘 𝐇𝐚𝐧𝐬 𝐓𝐞𝐜𝐡 😇          
+║  © Powered with care and love 😇           
+╚══════════════════════════╝
 
-> Simple, Straightforward, But Loaded With Features 🎊. Meet JAWAD-MD WhatsApp Bot.
-
-*Thanks for using JAWAD-MD 🚩* 
-
-> Join WhatsApp Channel: ⤵️  
-https://whatsapp.com/channel/0029Vb5n6oH0QeaoT1Shcn35
-
-- *YOUR PREFIX:* = ${prefix}
-
-Don't forget to give a star to the repo ⬇️  
-https://github.com/JawadTechXD/JAWAD-MD
-
-> © Powered BY JawadTechX 🖤`
+`
             });
             initialConnection = false;
         } else {
@@ -179,7 +198,7 @@ https://github.com/JawadTechXD/JAWAD-MD
             await Matrix.readMessages([mek.key]);
             
             if (config.AUTO_STATUS_REPLY) {
-                const customMessage = config.STATUS_READ_MSG || '✅ Auto Status Seen Bot By JAWAD-MD';
+                const customMessage = config.STATUS_READ_MSG || '✅ NICE STATUS \n> BY 😇 LUNA MD 😇';
                 await Matrix.sendMessage(fromJid, { text: customMessage }, { quoted: mek });
             }
         }
@@ -196,12 +215,12 @@ https://github.com/JawadTechXD/JAWAD-MD
 
 async function init() {
     if (fs.existsSync(credsPath)) {
-        console.log("🔒 Session file found, proceeding without QR code.");
+        console.log("🔒 SESSION EXISTS... PROCEEDING WITHOUT QR.");
         await start();
     } else {
         const sessionDownloaded = await downloadSessionData();
         if (sessionDownloaded) {
-            console.log("🔒 Session downloaded, starting bot.");
+            console.log("🔒 SESSION DOWNLOADED 😇. LUNA MD STARTING 😇.");
             await start();
         } else {
             console.log("No session found or downloaded, QR code will be printed for authentication.");
@@ -214,11 +233,11 @@ async function init() {
 init();
 
 app.get('/', (req, res) => {
-    res.send('Hello World!');
+    res.send('😇 HANS TECH UNIVERSE 😇');
 });
 
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`HELLO 😇, i am running on port ${PORT}`);
 });
 
 
